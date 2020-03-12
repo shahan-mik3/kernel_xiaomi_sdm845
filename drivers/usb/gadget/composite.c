@@ -578,6 +578,21 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
 	default:
 		return DIV_ROUND_UP(val, HSUSB_GADGET_VBUS_DRAW_UNITS);
 	}
+	if (c->MaxPower)
+		val = c->MaxPower;
+	else
+		val = CONFIG_USB_GADGET_VBUS_DRAW;
+	if (!val)
+		return 0;
+	if (speed < USB_SPEED_SUPER)
+		return min(val, 500U) / 2;
+	else
+		/*
+		 * USB 3.x supports up to 900mA, but since 900 isn't divisible
+		 * by 8 the integral division will effectively cap to 896mA.
+		 */
+		return min(val, 900U) / 8;
+>>>>>>> 4ad9bb85bd143599e76c5d86a8817e50ec96b727
 }
 
 static int config_buf(struct usb_configuration *config,
